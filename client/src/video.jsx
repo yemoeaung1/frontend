@@ -1,18 +1,38 @@
-import React, {useState} from "react";
+import React, {useState, useRef, useEffect} from "react";
 
-function Video(){
+function Video({isRecording}){
     const [playing, setPlaying] = useState(false);
+    const [recording, setRecording] = useState(false);
+    const [recordedChunks, setRecordedChunks] = useState([]);
+    const mediaRecorderRef = useRef(null);
+    const videoRef = useRef(null);
+
+    // useEffect(() => {
+    //     if (isRecording) {
+    //         startRecording();
+    //     } else {
+    //         stopRecording();
+    //     }
+    // }, [isRecording]);
 
     const startVideo = () => {
         setPlaying(true);
         navigator.mediaDevices.getUserMedia({ video: true })
             .then((stream) => {
+                videoRef.srcObject = stream;
+                mediaRecorderRef.current = new MediaRecorder(stream);
+
                 const video = document.getElementById("webcam");
                 if (video) {
                     video.srcObject = stream;
                 }
-            })
-            .catch((err) => console.error(err));
+                
+                mediaRecorderRef.current.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        setRecordedChunks((prev) => [...prev, event.data]);
+                    }
+                };
+        }).catch((err) => console.error(err));
     };
 
     const stopVideo = () => {
@@ -22,14 +42,51 @@ function Video(){
             const tracks = video.srcObject.getTracks();
             tracks.forEach(track => track.stop());
         }
+        if (mediaRecorderRef.current) {
+            mediaRecorderRef.current.stop();
+        }
     };
+
+    const startRecording = () => {
+        setRecording(true);
+        setRecordedChunks([]);
+        mediaRecorderRef.current.start();
+    };
+
+    const stopRecording = () => {
+        setRecording(false);
+        mediaRecorderRef.current.stop();
+    };
+
+    const downloadRecording = () => {
+        if (recordedChunks.length) {
+            const blob = new Blob(recordedChunks, { type: "video/webm" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = "recording.webm";
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    };
+
     return (
         <div className="flex flex-col justify-center items-center ">
-            <video id= "webcam" className="w-full" muted autoPlay> </video>
+            {recording ? (
+                    <button onClick={stopRecording}>Stop Recording</button>
+                ) : (
+                    <button onClick={startRecording}>Start Recording</button>
+                )} 
+                {recordedChunks.length > 0 && (
+                    <button onClick={downloadRecording}>Download</button>
+                )}
+
+            <video id= "webcam" className="w-full transform scale-x-[-1]" muted autoPlay> </video>
             <div>
-				    {playing ? (<button onClick={stopVideo}>Hide</button>) : (
-					<button onClick={startVideo}>Show</button>)}
+                {playing ? (<button onClick={stopVideo}>Hide</button>) : (
+                <button onClick={startVideo}>Show</button>)}
 			</div>
+
         </div>
     )
 }

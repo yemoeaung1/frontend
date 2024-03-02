@@ -1,3 +1,5 @@
+import daisyui from 'daisyui';
+
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -8,8 +10,14 @@ export default {
     extend: {
       fontFamily: {
         merienda: ['Merienda', 'cursive'] // Add 'cursive' as a fallback
-      }
+      },
+      width: {
+        'custom': '950px',
+      },
+      height: {
+        'custom': '500px',
+      },
     },
   },
-  plugins: [],
+  plugins: [require('daisyui')],
 }
