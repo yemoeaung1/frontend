@@ -71,6 +71,13 @@ button:focus-visible {
   }
 }
 
+.model-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 500px;
+  /* background-color: #f0f0f0; Optional: for visibility */
+}
 
 #notRec{
 	background-color: darkred;

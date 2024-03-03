@@ -8,25 +8,15 @@ import gif from "/itachi-shillouette-in-front-of-the-red-moon_800.gif";
 import VideoPage from './videoPage'
 import TextToSpeech from './textToSpeech'
 import axios from 'axios'
+import Model from "./threeDmodel";
 
 function App() {
   axios.defaults.withCredentials = true
   return (
     <div>
-      <div
-        className="bg-gradient-to-tr from-yellow-300 to-green-600"
-        // style={{
-        //   backgroundImage: `url(${gif})`,
-        //   backgroundSize: "cover",
-        //   height: "100vh",
-        // }}
-      >
-        <HomePage />
-      </div>
+      <FeedbackPage/>
     </div>
   );
-    <TextToSpeech/>
-  )
 }
 
 export default App;

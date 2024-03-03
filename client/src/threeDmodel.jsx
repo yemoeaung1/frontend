@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
-import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
+import * as THREE from "https://cdn.skypack.dev/three@0.129.0/build/three.module.js";
+import { OrbitControls } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/controls/OrbitControls.js";
+import { GLTFLoader } from "https://cdn.skypack.dev/three@0.129.0/examples/jsm/loaders/GLTFLoader.js";
+import WhiteHouse from "/WhiteHouse.png"
 
 function Model({ objToRender = 'barack_obama' }) {
   const containerRef = useRef(null);
@@ -23,30 +24,29 @@ function Model({ objToRender = 'barack_obama' }) {
     // Load the .gltf file
     const loader = new GLTFLoader();
     loader.load(
-      `assets/${objToRender}/scene.gltf`,
+      `/barack_obama/scene.gltf`,
       function (gltf) {
         const object = gltf.scene;
         scene.add(object);
+        object.scale.set(65,65,65);
 
-        if (objToRender === "barack_obama") {
-          document.onmousemove = (e) => {
-            const mouseX = e.clientX;
-            const mouseY = e.clientY;
+        const box = new THREE.Box3().setFromObject(object);
+        const center = box.getCenter(new THREE.Vector3());
 
-            // Make the eye move
-            object.rotation.y = -3 + mouseX / window.innerWidth * 3;
-            object.rotation.x = -1.2 + mouseY * 2.5 / window.innerHeight;
-          };
-        }
+       object.position.x += (object.position.x - center.x);
+       object.position.y += (object.position.y - center.y);
+       object.position.z += (object.position.z - center.z);
+
+    // Adjust the camera position
+    camera.lookAt(center);
       },
       undefined,
       function (error) {
         console.error(error);
       }
     );
-
-    // Set camera position
-    camera.position.z = objToRender === "dino" ? 25 : 500;
+        // Set camera position
+    camera.position.z = objToRender === "barack_obama" ? 30 : 100;
 
     // Add lights
     const topLight = new THREE.DirectionalLight(0xffffff, 1);
@@ -58,9 +58,9 @@ function Model({ objToRender = 'barack_obama' }) {
 
     // OrbitControls
     let controls;
-    if (objToRender === "dino") {
-      controls = new OrbitControls(camera, renderer.domElement);
-    }
+    // if (objToRender === "barack_obama") {
+    //   controls = new OrbitControls(camera, renderer.domElement);
+    // }
 
     // Animation loop
     const animate = () => {
@@ -85,9 +85,10 @@ function Model({ objToRender = 'barack_obama' }) {
         containerRef.current.removeChild(renderer.domElement);
       }
     };
-  }, [objToRender]); // Re-run the effect if objToRender changes
+  }, [objToRender]);
 
-  return <div ref={containerRef} />;
+  return (<div ref={containerRef} className="model-container" 
+  style={{ backgroundImage: `url(${WhiteHouse})`, backgroundSize: 'cover', backgroundPosition: 'center' }}/>);
 }
 
 export default Model;

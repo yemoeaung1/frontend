@@ -36,7 +36,7 @@ async function findScores(feedback) {
         maximumScore += maxScore;
     });
 
-    scores['Total Score'] = `${totalScore}/${maximumScore}`;
+    scores['Total_Score'] = `${totalScore}/${maximumScore}`;
 
     return scores;
 }
