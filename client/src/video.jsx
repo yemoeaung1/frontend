@@ -5,7 +5,7 @@ let mediaRecorder1, mediaRecorder2;
 let audioChunks = [];
 let videoChunks = [];
 
-function Video({ isRecording,question,id, setIsLoading}) {
+function Video({ question,id, setIsLoading, setIsSubmitted}) {
   const [playing, setPlaying] = useState(false);
   const [recording, setRecording] = useState(false);
   const [recordedChunks, setRecordedChunks] = useState([]);
@@ -113,6 +113,7 @@ function Video({ isRecording,question,id, setIsLoading}) {
             const response = await axios.get(`http://localhost:8000/star/generate?question=${question}&answer=${transcript.message}`)
             console.log(response.data)
             setIsLoading(false);
+            setIsSubmitted(true);
         } catch (err) {
             console.log(err);
         }

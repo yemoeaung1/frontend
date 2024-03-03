@@ -16,7 +16,7 @@ function VideoPage() {
   const [questionID, setQuestionID] = useState(null);
   const [answer, setAnswer] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+  const [isSubmitted, setIsSubmitted] = useState(false);
 
   console.log("in");
   console.log("answer", answer);
@@ -128,7 +128,7 @@ function VideoPage() {
   if (isLoading) {
     // navigate("/loading");
     return <LoadingPage />
-  }else if (!isLoading) {
+  }else if (!isLoading && isSubmitted) {
         // navigate("/feedback");
         return <FeedbackPage />
   } else {
@@ -167,6 +167,7 @@ function VideoPage() {
             id={questionID}
             setAnswer={setAnswer}
             setIsLoading={setIsLoading}
+            setIsSubmitted={setIsSubmitted}
           />
         </div>
 
