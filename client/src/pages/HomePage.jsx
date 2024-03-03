@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from 'react-router-dom';
-import VideoPage from "./videoPage";
+// import VideoPage from "../videoPage";
 
 export default function HomePage() {
     const navigate = useNavigate();
