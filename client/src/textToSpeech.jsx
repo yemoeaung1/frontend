@@ -10,7 +10,11 @@ function TextToSpeech(){
     const voice = voices.find(voice => voice.lang.startsWith('en')); // This selects the first English voice. Adjust as necessary.
 
     const handleOnClick = () => {
-        speak({text:text})
+      if (voice) {
+        speak({ text: text, voice });
+      } else {
+        speak({ text: text }); // Fallback to default voice
+      }
       }
     
     useEffect(() =>{

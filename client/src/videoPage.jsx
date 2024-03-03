@@ -1,5 +1,6 @@
 import React, {useState, useEffect, useRef} from 'react';
 import Video from './video';
+import Model from './threeDmodel';
 
 function VideoPage(){
     const questions = ["a","a", "a", "a", "a"]
@@ -40,13 +41,13 @@ function VideoPage(){
                 </ul>
             </div>
 
-            <div className="ml-5 w-custom h-custom border-2 rounded-md">
-    
+            <div className="ml-5 w-custom h-custom border-2 rounded-md .model-container">
+                <Model/>
             </div>
 
             <div className='absolute right-20 top-20'>
                 <div className="chat chat-start">
-                    <div className="chat-bubble ">THIS IS THE CHAT BUBBLE</div>
+                    <div className="chat-bubble "></div>
                 </div>
             </div>
 
