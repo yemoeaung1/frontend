@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
-import Video from './video';
 import axios from 'axios'
+
+let videoBlob;
 
 function FeedbackPage(){
     const [questions, setQuestion] = useState('');
@@ -18,7 +19,7 @@ function FeedbackPage(){
             const questionParam = "DESCRIBE A SITUATION WHERE YOU HAD TO MEET A TIGHT DEADLINE. WHAT STEPS DID YOU TAKE TO ENSURE THE TASK WAS COMPLETED, AND WHAT WAS THE OUTCOME";
             const answerParam = "WELL, THERE WAS THIS PROJECT AT MY PREVIOUS JOB WHERE WE HAD A REALLY TIGHT DEADLINE. I KIND OF PROCRASTINATED A BIT AND REALIZED I WAS RUNNING OUT OF TIME. SO, I STAYED UP ALL NIGHT BEFORE THE DEADLINE AND FINISHED THE WORK. I DIDN'T REALLY COMMUNICATE MUCH WITH THE TEAM BECAUSE I WANTED TO FOCUS ON GETTING IT DONE QUICKLY. IN THE END, I SUBMITTED IT JUST IN TIME. I THINK THE OUTCOME WAS FINE; THE PROJECT GOT DONE, BUT I WAS REALLY TIRED FOR A FEW DAYS AFTERWARD";
             const response = await axios.get(`http://localhost:8000/star/generate?question=${encodeURIComponent(questionParam)}&answer=${encodeURIComponent(answerParam)}`, {withCredientials: true});
-            console.log('Response data:', response.data.Scores);
+            console.log('Response data:', response.data);
             setQuestion(response.data.Question);
             setAnswer(response.data.Answer);
             setScores(response.data.Scores);
@@ -38,7 +39,7 @@ function FeedbackPage(){
                 {/*Axios.get the questions, the feedback, and answer*/}
                 <div className="w-screen bg-blue-200 text-white bg-pulsating-gradient">
                     <div className="flex-grow overflow-auto p-4 space-y-4 font-merienda">
-                        <h1 className='text-center text-black font-bold mb-8' style={{ fontFamily: 'Libre Franklin'}}>💡Feedback Page💡</h1>
+                        <h1 className='text-center text-black font-bold mb-8' style={{ fontFamily: 'Libre Franklin'}}><span className="glow-effect bloom-effect rounded-full m-2">💡</span>Feedback Page<span className="glow-effect bloom-effect rounded-full m-2" style={{ animationDelay: '0.5s' }}>💡</span></h1>
                         <QuestionBox questions={questions}/>
                         <div className="flex items-center justify-center">
                           <VideoBox />
@@ -64,7 +65,12 @@ function QuestionBox({questions}){
 function VideoBox(){
   return (
     <div className="bg-white text-center text-blue-900 font-bold w-7/12 m-16 p-4 rounded shadow-lg">
-      <Video />
+      {videoBlob && (
+        <video controls>
+          <source src={URL.createObjectURL(videoBlob)} type="video/webm" />
+          Your browser does not support the video tag.
+        </video>
+      )}
     </div>
   );
 }
@@ -83,14 +89,14 @@ function Report({scores, popupVisibility, setVisibility, starFB, relFB, profFB, 
     <div className="bg-white text-center text-blue-900 font-bold w-1/3 h-96 m-16 rounded-lg shadow-xl border-black border-solid border-4">
       <div className="h-96" style={{ position: 'relative' }}>
         {popupVisibility === 0 && <div className="flex items-center justify-center" style={{ position: 'absolute', width: '100%', height: '100%', zIndex: 1 }}>
-          <div style={{ fontFamily: 'monospace', whiteSpace: 'pre-wrap', margin: '12px 0' }}>
+          <div style={{ fontFamily: 'monospace', whiteSpace: 'pre-wrap', margin: '8px 0' }}>
             <p className="text-xl" onClick={() => setVisibility(1)} onMouseOver={(e) => mouseOver(e)} onMouseOut={(e) => mouseOut(e)}>{`Situation: ${scores.Situation}`}</p>
             <p className="text-xl" onClick={() => setVisibility(2)} onMouseOver={(e) => mouseOver(e)} onMouseOut={(e) => mouseOut(e)}>{`\nTask: ${scores.Task}`}</p>
             <p className="text-xl" onClick={() => setVisibility(3)} onMouseOver={(e) => mouseOver(e)} onMouseOut={(e) => mouseOut(e)}>{`\nAction: ${scores.Action}`}</p>
             <p className="text-xl" onClick={() => setVisibility(4)} onMouseOver={(e) => mouseOver(e)} onMouseOut={(e) => mouseOut(e)}>{`\nResult: ${scores.Result}`}</p>
             <p className="text-xl" onClick={() => setVisibility(5)} onMouseOver={(e) => mouseOver(e)} onMouseOut={(e) => mouseOut(e)}>{`\nRelevance: ${scores['Answered the question']}`}</p>
             <p className="text-xl" onClick={() => setVisibility(6)} onMouseOver={(e) => mouseOver(e)} onMouseOut={(e) => mouseOut(e)}>{`\nProfessionalism: ${scores.Professionalism}`}</p>
-            <p className="text-xl" onClick={() => setVisibility(7)} onMouseOver={(e) => mouseOver(e)} onMouseOut={(e) => mouseOut(e)}>{`\nTotal Score: ${scores.Total_Score}`}</p>
+            <p className="text-xl" onClick={() => setVisibility(7)} onMouseOver={(e) => mouseOver(e)} onMouseOut={(e) => mouseOut(e)}>{`\nTotal Score: ${scores['Total Score']}`}</p>
           </div>
         </div>}
         {popupVisibility === 1 && <div className="overflow-y-auto" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', zIndex: 0 }}>
@@ -129,7 +135,7 @@ function Report({scores, popupVisibility, setVisibility, starFB, relFB, profFB, 
           <p className="text-left p-4">{feedback}</p>
         </div>}
       </div>
-      <p className="p-8 text-lg text-grey">Click Scores for Feedback!</p>
+      <p className="p-8 text-2xl text-grey">Click Scores for Feedback!</p>
     </div>
   );
 }
@@ -144,13 +150,13 @@ function XButton(props){
 
 function parseFBString(str, num){
   let newStr = str;
-  for(let i = 0; i < num; i++){
-    let j = 0;
-    while(newStr[j] !== '\n'){
-      j++;
-    }
-    newStr = newStr.substring(j + 1);
-  }
+  // for(let i = 0; i < num; i++){
+  //   let j = 0;
+  //   while(newStr[j] !== '\n'){
+  //     j++;
+  //   }
+  //   newStr = newStr.substring(j + 1);
+  // }
 
   return newStr;
 }
