@@ -1,140 +1,201 @@
-import React, {useState, useRef, useEffect} from "react";
+import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 
-function Video({isRecording}){
-    const [playing, setPlaying] = useState(false);
-    const [recording, setRecording] = useState(isRecording);
-    const [recordedChunks, setRecordedChunks] = useState([]);
-    const [audioURL, setAudioURL] = useState('');
-    let mediaRecorder;
-    const mediaRecorderRef = useRef(null);
-    const videoRef = useRef(null);
+let mediaRecorder1, mediaRecorder2;
+let audioChunks = [];
+let videoChunks = [];
 
-    const stopVideo = () => {
-        setPlaying(false);
-        const video = document.getElementById("webcam");
-        if (video && video.srcObject) {
-            const tracks = video.srcObject.getTracks();
-            tracks.forEach(track => track.stop());
-        }
-        if (mediaRecorderRef.current) {
-            mediaRecorderRef.current.stop();
-        }
-    };
+function Video({ isRecording }) {
+  const [playing, setPlaying] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const [recordedChunks, setRecordedChunks] = useState([]);
+  const [audioURL, setAudioURL] = useState("");
+  // let mediaRecorder;
+  const mediaRecorderRef = useRef(null);
+  const videoRef = useRef(null);
 
-    useEffect(() => {
-        const startMediaCapture = async () => {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                videoRef.current.srcObject = stream;
-                const mediaRecorder = new MediaRecorder(stream);
-                mediaRecorder.ondataavailable = (event) => {
-                    if (event.data.size > 0) {
-                        setRecordedChunks(prev => [...prev, event.data]);
-                    }
-                };
-                
-                if (isRecording) {
-                    mediaRecorder.start();
-                } else {
-                    mediaRecorder.stop();
-                }
-            } catch (err) {
-                console.error("Error accessing media devices:", err);
-            }
+  const stopVideo = () => {
+    setPlaying(false);
+    const video = document.getElementById("webcam");
+    if (video && video.srcObject) {
+      const tracks = video.srcObject.getTracks();
+      tracks.forEach((track) => track.stop());
+    }
+    if (mediaRecorderRef.current) {
+      mediaRecorderRef.current.stop();
+    }
+  };
+
+  // useEffect(() => {
+  //     const startMediaCapture = async () => {
+  //         try {
+  //             console.log('starting capture')
+  //             const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+  //             videoRef.current.srcObject = stream;
+  //             const mediaRecorder = new MediaRecorder(stream);
+  //             mediaRecorder.ondataavailable = (event) => {
+  //                 if (event.data.size > 0) {
+  //                     setRecordedChunks(prev => [...prev, event.data]);
+  //                 }
+  //             };
+
+  //             if (!recording) {
+  //                 mediaRecorder.start();
+  //             } else {
+  //                 mediaRecorder.stop();
+  //             }
+  //         } catch (err) {
+  //             console.error("Error accessing media devices:", err);
+  //         }
+  //     };
+
+  //     startMediaCapture();
+  // }, [recording]);
+
+  //This starts the recording
+  const startVideoRecording = () => {
+    navigator.mediaDevices
+      .getUserMedia({ video: true })
+      .then((stream) => {
+        mediaRecorder1 = new MediaRecorder(stream);
+        mediaRecorder1.ondataavailable = (e) => {
+          //    setRecordedChunks(e.data);
+          videoChunks.push(e.data);
+          console.log(e);
         };
+        mediaRecorder1.onstop = () => {
+          const blob = new Blob(videoChunks, { type: "video/webm" }); //, { type: "audio/webm; codecs=PCM" }
+          // const blob2 = new Blob(chunks, { type: "video/webm"});
 
-        startMediaCapture();
-    }, [isRecording]);
+          console.log(blob);
+        //   const url = URL.createObjectURL(blob);
+        //   setAudioURL(url);
+          // setRecordedChunks([]);
+          videoChunks = [];
 
-    //This starts the recording
-    const startRecording = () => {
-        navigator.mediaDevices.getUserMedia({ audio: true, video: true })
-        .then((stream) => {
-          mediaRecorder = new MediaRecorder(stream);
-          mediaRecorder.ondataavailable = (e) => {
-           setRecordedChunks(e.data);
-          };
-          mediaRecorder.onstop = () => {
-            const blob = new Blob(chunks, {type: "audio/webm;codecs=opus"});//, { type: "audio/webm; codecs=PCM" }
-            const blob2 = new Blob(chunks, { type: "video/webm"});
+          sendVideo(blob);
+          // sendVideo(blob2);
+        };
+        mediaRecorder1.start(1000);
+        setRecording(true);
+      })
+      .catch((err) => {
+        console.error("Error accessing microphone:", err);
+      });
+  };
 
-            console.log(blob)
-            const url = URL.createObjectURL(blob);
-            setAudioURL(url);
-            setRecordedChunks([]);
-            
-            sendAudio(blob);
-            sendVideo(blob2);
-          };
-          mediaRecorder.start(1000);
-          setRecording(true);
-        })
-        .catch((err) => {
-          console.error('Error accessing microphone:', err);
-        });
-    };
+  const startAudioRecording = () => {
+    console.log("started recording");
+    navigator.mediaDevices
+      .getUserMedia({ audio: true })
+      .then((stream) => {
+        mediaRecorder2 = new MediaRecorder(stream);
+        mediaRecorder2.ondataavailable = (e) => {
+          //    setRecordedChunks(e.data);
+          audioChunks.push(e.data);
+          console.log(e);
+        };
+        mediaRecorder2.onstop = () => {
+          const blob = new Blob(audioChunks, { type: "audio/webm" }); //, { type: "audio/webm; codecs=PCM" }
+          // const blob2 = new Blob(chunks, { type: "video/webm"});
 
-    const stopRecording = () => {
-        setRecording(false);
-        mediaRecorderRef.current.stop();
-    };
+          console.log(blob);
+          const url = URL.createObjectURL(blob);
+          setAudioURL(url);
+          // setRecordedChunks([]);
+          audioChunks = [];
 
-    //This sends the audio to parse the audio
-    const sendAudio = (blob) => {
-        const formData = new FormData();
-        formData.append('audio', blob);
-        axios.post('http://localhost:5000/audio-parse', formData)
-        .then(response => {
-          
-        })
-        .catch(err => {
-          console.error("Error: ", err);
-        })
-        
-      };
+          sendAudio(blob);
+          // sendVideo(blob2);
+        };
+        mediaRecorder2.start(1000);
+        setRecording(true);
+      })
+      .catch((err) => {
+        console.error("Error accessing microphone:", err);
+      });
+  };
 
-    {/* This will download the video Recording*/}
-    const sendVideo = async (blob) => {
-        console.log('in download')
-        // const blob2 = new Blob(recordedChunks,{ type: "audio/webm;codecs=opus"});
-        // const url = URL.createObjectURL(blob2);
-        // setaudioURL(blob2);
-        // setRecordedChunks([]);
-        // sendAudio(blob2);
+  const startRecording = () => {
+    startAudioRecording();
+    startVideoRecording();
+  }
 
-        const formData = new FormData();
-        formData.append('file', blob)
-        try {
-            const response = await axios.post('http://localhost:5000/uploadresponse', formData);
-            console.log('uploaded');
-            console.log(response.data);
-        } catch (error) {
-            console.log(`Video upload failed: ${error}`)
-        }
-        
-    };
+  const stopRecording = () => {
+    // if(mediaRecorder && mediaRecorder.state === 'recording') {
+    mediaRecorder1.stop();
+    mediaRecorder2.stop();
+    setRecording(false);
+    // }
+    // mediaRecorderRef.current.stop();
+  };
 
-    return (
-        <div className="flex flex-col justify-center items-center ">
-            {/* {isRecording ? (
-                    <button onClick={stopRecording}>Stop Recording</button>
-                ) : (
-                    <button onClick={startRecording}>Start Recording</button>
-                )}  */}
-                {recordedChunks.length > 0 && (
-                    <button onClick={downloadRecording}>Download</button>
-                )}
+  //This sends the audio to parse the audio
+  const sendAudio = (blob) => {
+    console.log("sending recording");
+    const formData = new FormData();
+    formData.append("audio", blob);
+    axios
+      .post("http://localhost:5000/audio-parse", formData)
+      .then((response) => {})
+      .catch((err) => {
+        console.error("Error: ", err);
+      });
+  };
 
-            <video id= "webcam" ref={videoRef} className="w-full transform scale-x-[-1]" muted autoPlay playsInline> </video>
-            
-            <div>
-                {/* {playing ? (<button onClick={stopVideo}>Hide</button>) : (
+  {
+    /* This will download the video Recording*/
+  }
+  const sendVideo = async (blob) => {
+    console.log("in download");
+    // const blob2 = new Blob(recordedChunks,{ type: "audio/webm;codecs=opus"});
+    // const url = URL.createObjectURL(blob2);
+    // setaudioURL(blob2);
+    // setRecordedChunks([]);
+    // sendAudio(blob2);
+
+    const formData = new FormData();
+    formData.append("file", blob);
+    try {
+      const response = await axios.post(
+        "http://localhost:8080/uploadresponse",
+        formData
+      );
+      console.log("uploaded");
+      console.log(response.data);
+    } catch (error) {
+      console.log(`Video upload failed: ${error}`);
+    }
+  };
+
+  return (
+    <div className="flex flex-col justify-center items-center ">
+      {recording ? (
+        <button onClick={stopRecording}>Stop Recording</button>
+      ) : (
+        <button onClick={startRecording}>Start Recording</button>
+      )}
+      {recordedChunks.length > 0 && (
+        <button onClick={downloadRecording}>Download</button>
+      )}
+
+      <video
+        id="webcam"
+        ref={videoRef}
+        className="w-full transform scale-x-[-1]"
+        muted
+        autoPlay
+        playsInline
+      >
+        {" "}
+      </video>
+
+      <div>
+        {/* {playing ? (<button onClick={stopVideo}>Hide</button>) : (
                 <button onClick={startVideo}>Show</button>)} */}
-			</div>
-
-        </div>
-    )
+      </div>
+    </div>
+  );
 }
 
 export default Video;
