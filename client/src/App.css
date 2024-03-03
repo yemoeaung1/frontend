@@ -30,3 +30,7 @@
   animation: waveDisappear 4s infinite;
 }
 
+.with-arrow {
+  background-image: url('https://th.bing.com/th/id/R.0673093bbfcecc10fc43a2e61243415c?rik=1pH9V0jCRyiRdQ&riu=http%3a%2f%2fclipart-library.com%2fimages_k%2farrow-image-transparent%2farrow-image-transparent-9.png&ehk=tGpJQDxnJ%2bq7S2HVaT2wMHWwaLHTtpQ%2b%2baxiZvotuvY%3d&risl=&pid=ImgRaw&r=0'); /* Replace 'arrow.png' with your arrow image */
+  background-repeat: no-repeat;
+}
