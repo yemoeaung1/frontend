@@ -1,16 +1,12 @@
-import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import FeedbackPage from "./feedbackPage";
 import HomePage from "./pages/HomePage";
-import gif from "/itachi-shillouette-in-front-of-the-red-moon_800.gif";
-import VideoPage from "./pages/videoPage";
+import VideoPage from "./videoPage";
 import TextToSpeech from "./textToSpeech";
 import axios from "axios";
 import Model from "./threeDmodel";
 import { Routes, Route, Router, BrowserRouter } from "react-router-dom";
-import LoadingPage from "./pages/LoadingPage";
+import LoadingPage from "./pages/loadingPage";
 
 function App() {
   // axios.defaults.withCredentials = true

@@ -5,7 +5,7 @@ let mediaRecorder1, mediaRecorder2;
 let audioChunks = [];
 let videoChunks = [];
 
-function Video({ isRecording }) {
+function Video({ isRecording,question,id, setIsLoading}) {
   const [playing, setPlaying] = useState(false);
   const [recording, setRecording] = useState(false);
   const [recordedChunks, setRecordedChunks] = useState([]);
@@ -26,31 +26,31 @@ function Video({ isRecording }) {
     }
   };
 
-  // useEffect(() => {
-  //     const startMediaCapture = async () => {
-  //         try {
-  //             console.log('starting capture')
-  //             const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-  //             videoRef.current.srcObject = stream;
-  //             const mediaRecorder = new MediaRecorder(stream);
-  //             mediaRecorder.ondataavailable = (event) => {
-  //                 if (event.data.size > 0) {
-  //                     setRecordedChunks(prev => [...prev, event.data]);
-  //                 }
-  //             };
+  useEffect(() => {
+      const startMediaCapture = async () => {
+          try {
+              console.log('starting capture')
+              const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+              videoRef.current.srcObject = stream;
+              const mediaRecorder = new MediaRecorder(stream);
+              mediaRecorder.ondataavailable = (event) => {
+                  if (event.data.size > 0) {
+                      setRecordedChunks(prev => [...prev, event.data]);
+                  }
+              };
 
-  //             if (!recording) {
-  //                 mediaRecorder.start();
-  //             } else {
-  //                 mediaRecorder.stop();
-  //             }
-  //         } catch (err) {
-  //             console.error("Error accessing media devices:", err);
-  //         }
-  //     };
+              if (!recording) {
+                  mediaRecorder.start();
+              } else {
+                  mediaRecorder.stop();
+              }
+          } catch (err) {
+              console.error("Error accessing media devices:", err);
+          }
+      };
 
-  //     startMediaCapture();
-  // }, [recording]);
+      startMediaCapture();
+  }, [recording]);
 
   //This starts the recording
   const startVideoRecording = () => {
@@ -84,7 +84,7 @@ function Video({ isRecording }) {
       });
   };
 
-  const startAudioRecording = () => {
+  const startAudioRecording = async () => {
     console.log("started recording");
     navigator.mediaDevices
       .getUserMedia({ audio: true })
@@ -95,7 +95,7 @@ function Video({ isRecording }) {
           audioChunks.push(e.data);
           console.log(e);
         };
-        mediaRecorder2.onstop = () => {
+        mediaRecorder2.onstop = async () => {
           const blob = new Blob(audioChunks, { type: "audio/webm" }); //, { type: "audio/webm; codecs=PCM" }
           // const blob2 = new Blob(chunks, { type: "video/webm"});
 
@@ -105,8 +105,31 @@ function Video({ isRecording }) {
           // setRecordedChunks([]);
           audioChunks = [];
 
-          sendAudio(blob);
+          let transcript = await sendAudio(blob);
+        //   ==console.log(transcript);
+
+        try {
+            setIsLoading(true);
+            const response = await axios.get(`http://localhost:8000/star/generate?question=${question}&answer=${transcript.message}`)
+            console.log(response.data)
+            setIsLoading(false);
+        } catch (err) {
+            console.log(err);
+        }
+        //   setAnswer(transcript);
           // sendVideo(blob2);
+        
+            //sendVideo(blob2);
+            // let transcription = await sendAudio(blob);
+
+            // navigate('/loading');
+            // try {
+            //     const response = await axios.post(`http://localhost:8000/star/generate?question=${question}&answer=${transcript}`);
+            //     console.log(response.data);
+            //     // navigate('/feedback');
+            // } catch (err) {
+            //     console.log(err);
+            // }
         };
         mediaRecorder2.start(1000);
         setRecording(true);
@@ -121,26 +144,44 @@ function Video({ isRecording }) {
     startVideoRecording();
   }
 
-  const stopRecording = () => {
+  const stopRecording = async () => {
     // if(mediaRecorder && mediaRecorder.state === 'recording') {
     mediaRecorder1.stop();
     mediaRecorder2.stop();
     setRecording(false);
+    // navigate('/loading');
+    // try {
+    //     await axios.post(`http://localhost:8000/questions/generate?title=${inputValue}`);
+    //     navigate('/practice');
+    // } catch (err) {
+    // console.log(err);
+    // }
     // }
     // mediaRecorderRef.current.stop();
   };
 
   //This sends the audio to parse the audio
-  const sendAudio = (blob) => {
+  const sendAudio = async (blob) => {
     console.log("sending recording");
     const formData = new FormData();
     formData.append("audio", blob);
-    axios
-      .post("http://localhost:5000/audio-parse", formData)
-      .then((response) => {})
-      .catch((err) => {
+
+    try {
+        const response = await axios.post(`http://localhost:5000/audio-parse?qID=${id}`, formData)
+        console.log(response.data)
+        return response.data;
+    } catch(err) {
         console.error("Error: ", err);
-      });
+    }
+    // axios
+    //   .post(`http://localhost:5000/audio-parse?qID=${id}`, formData)
+    //   .then((response) => {
+    //     console.log(response)
+    //     return response
+    // })
+    //   .catch((err) => {
+    //     console.error("Error: ", err);
+    //   });
   };
 
   {
@@ -158,7 +199,7 @@ function Video({ isRecording }) {
     formData.append("file", blob);
     try {
       const response = await axios.post(
-        "http://localhost:8080/uploadresponse",
+        `http://localhost:5000/uploadresponse?qID=${id}`,
         formData
       );
       console.log("uploaded");
