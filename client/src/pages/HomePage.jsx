@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 // import VideoPage from "../videoPage";
 
 export default function HomePage() {
@@ -16,32 +17,32 @@ export default function HomePage() {
         <h2 className="text-black text-3xl inline-block mr-4 w-fit inline-block" style={{ fontFamily: 'Libre Franklin' }}>
           I am interviewing for a position as a
         </h2>
-        <InputPosition setRole={setRole} navigate={navigate}/>
+        <InputPosition role={role} setRole={setRole} navigate={navigate}/>
       </div>
     </div>
   );
 }
 
-function InputPosition({ setRole, navigate }) {
+function InputPosition({ role, setRole, navigate }) {
   const [inputValue, setInputValue] = useState(""); // State to track input value
 
   const handleChange = (e) => {
     setInputValue(e.target.value);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     // Check if the input value is not empty before navigating
     if (inputValue.trim() !== "") {
       setRole(inputValue);
       navigate('/loading');
-
-      // Simulate an asynchronous operation (replace this with your actual condition check)
-      setTimeout(() => {
-        // Once the condition is met, navigate to another route
+      try {
+        await axios.post(`http://localhost:8000/questions/generate?title=${inputValue}`);
         navigate('/practice');
-      }, 2000); // Example: Wait for 2 seconds before navigating
+      } catch (err) {
+        console.log(err);
+      }
     }
   };
 
