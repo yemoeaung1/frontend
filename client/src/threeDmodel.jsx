@@ -28,7 +28,7 @@ function Model({ objToRender = 'barack_obama' }) {
       function (gltf) {
         const object = gltf.scene;
         scene.add(object);
-        object.scale.set(65,65,65);
+        object.scale.set(58,58,58);
 
         const box = new THREE.Box3().setFromObject(object);
         const center = box.getCenter(new THREE.Vector3());
