@@ -9,7 +9,6 @@ function VideoPage(){
     const [recording, setRecording] = useState(false);
     const [activeRecording, setActiveRecording] = useState('notRec')
 
-    
     const startRecording = () => {
         setRecording(true);
         setActiveRecording('Rec')
@@ -42,7 +41,7 @@ function VideoPage(){
             </div>
 
             <div className="ml-5 w-custom h-custom border-2 rounded-md .model-container">
-                <Model/>
+                {/* <Model/> */}
             </div>
 
             <div className='absolute right-20 top-20'>
@@ -52,7 +51,7 @@ function VideoPage(){
             </div>
 
             <div className="fixed bottom-20 right-0 m-3 border w-64 h-36 rounded-md">
-                <Video/>
+                <Video isRecording={recording}/>
             </div>
 
             <footer className="w-full text-center mt-5">
