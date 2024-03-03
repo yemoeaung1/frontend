@@ -30,3 +30,44 @@
   animation: waveDisappear 4s infinite;
 }
 
+@keyframes glowFade {
+  0%{
+    background-position: -200% 0;
+  }
+  100%{
+    background-position: 200% 0;
+  }
+}
+
+.bg-glow {
+  animation: glowFade 4s infinite;
+  background: linear-gradient(to right, #333, #666, #333); /* Gradient from dark gray to medium gray and back */
+  background-size: 200% 100%; /* Double the width to cover the entire element */
+}
+
+@keyframes pulse {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.bg-pulsating-gradient {
+  animation: pulse 3s infinite;
+  background-image: linear-gradient(to right, #4F46E5, #EC4899, #FFA657);
+}
+
+.bg-pulsating-gradient::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: -1;
+  background-size: 200% 100%;
+  background-position: 100% 50%;
+  animation: pulse 3s infinite;
+}

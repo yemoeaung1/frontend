@@ -49,7 +49,7 @@ try {
         "STAR": star,
         "Relevance": relevance,
         "Professionalism": professionalism,
-        "Total Feedback": feedback,
+        "Total_Feedback": feedback,
         "Scores": scores,
         "Result": final_feedback
       };
