@@ -8,21 +8,13 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col items-center justify-center h-screen border-2 border-black">
-      <h1 className="text-black text-6xl"> Interview Prep Tool </h1>
+      <h1 className="text-black rounded-lg text-6xl mb-36"  style={{ fontFamily: 'Libre Franklin'}}> Interview Prep Tool </h1>
       <div className="my-2 flex flex-row gap-2 my-4">
-        <button
-          className="btn glass text-black"
-          onClick={() => {
-            console.log(role);
-            navigate("/loading")
-          }}
-        >
-          Practice
-        </button>
+        
       </div>
       <div className="text-center">
-        <h2 className="text-black text-2xl inline-block mr-4 w-fit inline-block">
-          Interview me for:
+        <h2 className="text-black text-3xl inline-block mr-4 w-fit inline-block" style={{ fontFamily: 'Libre Franklin' }}>
+          I am interviewing for a position as a
         </h2>
         <InputPosition setRole={setRole} navigate={navigate}/>
       </div>
@@ -30,32 +22,51 @@ export default function HomePage() {
   );
 }
 
-function InputPosition({setRole, navigate}) {
+function InputPosition({ setRole, navigate }) {
+  const [inputValue, setInputValue] = useState(""); // State to track input value
+
   const handleChange = (e) => {
-    setRole(e.target.value);
+    setInputValue(e.target.value);
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    setRole(e.target.value);
-    navigate('/loading');
 
-     // Simulate an asynchronous operation (replace this with your actual condition check)
-     setTimeout(() => {
-        // Once condition is met, navigate to another route
+    // Check if the input value is not empty before navigating
+    if (inputValue.trim() !== "") {
+      setRole(inputValue);
+      navigate('/loading');
+
+      // Simulate an asynchronous operation (replace this with your actual condition check)
+      setTimeout(() => {
+        // Once the condition is met, navigate to another route
         navigate('/practice');
       }, 2000); // Example: Wait for 2 seconds before navigating
+    }
   };
+
   return (
     <div className="inline-block">
-      <form className="flex gap-4" onSubmit={handleSubmit}>
-        <input
-          type="text"
-          className="input input-bordered w-full max-w-xs border-4 bg-transparent border-red-100 text-white text-2xl focus:border-red-500"
-          onChange={handleChange}
-        />
-        <div>
-        <button className="btn btn-ghost text-black w-fit">Enter</button>
+      <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
+        <div className="flex gap-4">
+          <input
+            type="text"
+            className="text-center input input-bordered w-full max-w-xs border-2 bg-transparent border-red-100 text-black text-3xl focus:border-green"
+            style={{ fontFamily: 'Libre Franklin' }}
+            onChange={handleChange}
+            placeholder="Enter your role"
+          />
+          <div>
+            <button
+              className={`btn btn-ghost text-black w-fit ${
+                inputValue.trim() !== "" ? "bg-green-600" : "" // Apply background color if input is not empty
+              }`}
+              style={{ fontFamily: 'Libre Franklin' }}
+              disabled={inputValue.trim() === ""} // Disable button if input is empty
+            >
+              Enter
+            </button>
+          </div>
         </div>
       </form>
     </div>
