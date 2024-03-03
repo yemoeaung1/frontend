@@ -1,12 +1,16 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from 'react-router-dom';
+import VideoPage from "./videoPage";
 
 export default function HomePage() {
+    const navigate = useNavigate();
+
   return (
     <div className="flex flex-col items-center justify-center h-screen border-2 border-black">
       <h1 className="text-black text-6xl"> Interview Prep Tool </h1>
       <div className="my-2 flex flex-row gap-2">
-        <button className="btn glass text-black">Practice</button>
-        <button className="btn glass text-black">Mock Interview</button>
+        <button className="btn glass text-black" onClick={()=>navigate('/practice')}>Practice</button>
+        <button className="btn glass text-black"  onClick={()=>navigate('/mock')}>Mock Interview</button>
       </div>
       <div className="mt-4">
         <h2 className="text-black text-2xl inline-block mr-8 absolute-left-48 w-fit">

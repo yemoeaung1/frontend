@@ -1,4 +1,5 @@
 import React, {useState, useRef, useEffect} from "react";
+import axios from "axios";
 
 function Video({isRecording}){
     const [playing, setPlaying] = useState(false);
@@ -58,15 +59,37 @@ function Video({isRecording}){
         mediaRecorderRef.current.stop();
     };
 
-    const downloadRecording = () => {
+    // const downloadRecording = () => {
+    //     if (recordedChunks.length) {
+    //         const blob = new Blob(recordedChunks, { type: "video/webm" });
+    //         const url = URL.createObjectURL(blob);
+    //         const a = document.createElement("a");
+    //         a.href = url;
+    //         a.download = "recording.webm";
+    //         a.click();
+    //         URL.revokeObjectURL(url);
+    //     }
+    // };
+    const downloadRecording = async () => {
+        console.log('in download')
         if (recordedChunks.length) {
             const blob = new Blob(recordedChunks, { type: "video/webm" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = "recording.webm";
-            a.click();
-            URL.revokeObjectURL(url);
+            
+            const formData = new FormData();
+            formData.append('file', blob)
+            try {
+                const response = await axios.post('http://localhost:5000/uploadresponse', formData);
+                console.log('uploaded');
+                console.log(response.data);
+            } catch (error) {
+                console.log(`Video upload failed: ${error}`)
+            }
+            // const url = URL.createObjectURL(blob);
+            // const a = document.createElement("a");
+            // a.href = url;
+            // a.download = "recording.webm";
+            // a.click();
+            // URL.revokeObjectURL(url);
         }
     };
 
